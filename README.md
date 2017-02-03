@@ -9,6 +9,6 @@
 - in Matlab:
 
 <pre><code> 
-roiconveter('/Complete/Path/To/Images')
+roiconverter('/Complete/Path/To/Images')
 </pre></code>
 
