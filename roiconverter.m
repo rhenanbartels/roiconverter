@@ -7,6 +7,8 @@ function roiconverter(folderPath, ext)
     if ~strcmp(ext, '.nrrd')
         error('This version only supports NRRD extension.');
     end
+    
+    initDependencies();
 
     [metadatas, img] = opendicoms(folderPath);
     lungRoi = getroiinfo(metadatas);
@@ -37,4 +39,8 @@ function [resultsFolder, imgFileName, roiFileName] =...
     imgFileName = [resultsFolder filesep 'dicom' ext];
     roiFileName = [resultsFolder filesep 'roi' ext];
     
+end
+
+function initDependencies()
+    addpath('external/');
 end
