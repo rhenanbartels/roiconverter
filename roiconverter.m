@@ -3,6 +3,10 @@ function roiconverter(folderPath, ext)
     if nargin == 1
         ext = '.nrrd';
     end
+    
+    if ~strcmp(ext, '.nrrd')
+        error('This version only supports NRRD extension.');
+    end
 
     [metadatas, img] = opendicoms(folderPath);
     lungRoi = getroiinfo(metadatas);
