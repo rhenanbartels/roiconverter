@@ -11,19 +11,27 @@ function roiconverter(folderPath, ext)
     initDependencies();
 
     [metadatas, img] = opendicoms(folderPath);
-    lungRoi = getroiinfo(metadatas);
     
-    %prepare folder and file names
-    [resultsFolder, imgFileName, roiFileName] =...
-        createOutputFileAndFolderName(folderPath, metadatas, ext);
+    if ~isempty(metadatas) && ~isempty(img)
+        
+        lungRoi = getroiinfo(metadatas);
+        
+        %prepare folder and file names
+        [resultsFolder, imgFileName, roiFileName] =...
+            createOutputFileAndFolderName(folderPath, metadatas, ext);
+        
+        mkdir(resultsFolder)
+        
+        %save images
+        matrix2nrrd(imgFileName, img, metadatas{1})
+        
+        if any(sum(sum(lungRoi)))
+            matrix2nrrd(roiFileName, lungRoi, metadatas{1})
+        end
+    else
+        disp('No DICOMS file found!');
+    end
     
-    mkdir(resultsFolder)
-    
-    %save images
-    matrix2nrrd(imgFileName, img, metadatas{1})
-    matrix2nrrd(roiFileName, lungRoi, metadatas{1})
-    
-   
 end
 
 function [resultsFolder, imgFileName, roiFileName] =...
