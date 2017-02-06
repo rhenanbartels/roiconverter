@@ -1,7 +1,13 @@
 function [metadata, img] = opendicoms(folderPath)
     fileAndFolders = dir(folderPath);
     dicomNames = getDicomFileNames(folderPath, fileAndFolders);
-    [metadata, img] = readDicoms(dicomNames);
+    
+    metadata = {};
+    img = {};
+    
+    if ~isempty(dicomNames)
+        [metadata, img] = readDicoms(dicomNames);
+    end
 end
 
 function [metadata, img] = readDicoms(dicomNames)
@@ -30,10 +36,11 @@ function dicomNames = getDicomFileNames(folderPath, fileAndFolders)
     
     counter = 1;
     
+    
+    dicomNames = {};
     for i = 1:nItems        
         name = fileAndFolders(i).name;
-        fullName = [folderPath filesep name];
-        
+        fullName = [folderPath filesep name];       
         if isDicom(fullName)
             dicomNames{counter} = fullName;
             counter = counter + 1;
