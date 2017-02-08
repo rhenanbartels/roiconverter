@@ -12,7 +12,7 @@ end
 function convert(hObject, eventdata)
     handles = guidata(hObject);
     
-    folderPath = handles.data.folderPath;
+    folderPath = handles.folderPath;
 
     logTextArea(handles.textArea, 'Verarbeiten...');
     [metadatas, img] = opendicoms(folderPath);
@@ -56,12 +56,20 @@ end
 
 
 function getRootFolder(hObject, eventdata)
-    folderPath = uigetdir('Wählen Sie einen Ordner ');
+    handles = guidata(hObject);
+    
+    if ~isfield(handles, 'folderPath');
+        folderPath = uigetdir('Wählen Sie einen Ordner ');
+    else
+       folderPath = uigetdir(handles.folderPath,...
+           'Wählen Sie einen Ordner '); 
+    end
+    
     if folderPath
-        handles = guidata(hObject);
+        
         set(handles.txtRootFolder, 'String', folderPath);
         set(handles.btnDoIt, 'Enable', 'On')
-        handles.data.folderPath = folderPath;
+        handles.folderPath = folderPath;
         guidata(hObject, handles);
     end
 end
