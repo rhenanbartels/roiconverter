@@ -14,7 +14,7 @@ function convert(hObject, eventdata)
     
     folderPath = handles.folderPath;
 
-    logTextArea(handles.textArea, 'Verarbeiten...');
+    logTextArea(handles.textArea, 'Verarbeitet...');
     [metadatas, img] = opendicoms(folderPath);
     
     if ~isempty(metadatas) && ~isempty(img)
@@ -29,10 +29,10 @@ function convert(hObject, eventdata)
         mkdir(resultsFolder)
         
         %save images
-        matrix2nrrd(imgFileName, img, metadatas{1})
+        exportNRRD(imgFileName, img, metadatas{1})
         
         if any(sum(sum(lungRoi)))
-            matrix2nrrd(roiFileName, lungRoi, metadatas{1})
+            exportNRRD(roiFileName, lungRoi, metadatas{1})
         end
         
     logTextArea(handles.textArea, ['DICOMS in ' resultsFolder ' gespeichert!']);    
@@ -40,6 +40,24 @@ function convert(hObject, eventdata)
     else
         logTextArea(handles.textArea, 'DICOMS nicht gefunden');
     end
+end
+
+function exportNRRD(fileName, matrix, metadata)
+    dataTypes = {'int16', 'uint16', 'int32', 'uint32',...
+        'int64','uint64', 'double', 'int8', 'uint8'};
+    
+    for dtype = dataTypes;
+        func = str2func(dtype{1});
+        convertedMatrix = func(matrix);
+        matrix2nrrd(fileName, convertedMatrix, metadata);
+        try
+            nrrdReader(fileName);
+            return
+        catch
+        end
+    end
+
+
 end
 
 function logTextArea(handle, msg, flush)
