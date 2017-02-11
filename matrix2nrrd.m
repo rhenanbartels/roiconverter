@@ -5,6 +5,6 @@ function matrix2nrrd(outputName, img, metadata)
     
     origin = metadata.ImagePositionPatient;
     
-    nrrdWriter(outputName, img, voxelDimensions, origin, 'raw');
+    nrrdWriter(outputName, img, voxelDimensions, origin, 'gzip');
     
 end
