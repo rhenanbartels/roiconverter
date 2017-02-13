@@ -18,7 +18,7 @@ function convert(hObject, eventdata)
     [metadatas, img] = opendicoms(folderPath);
     
     if ~isempty(metadatas) && ~isempty(img)
-        ext = '.nrrd';
+        ext = '.nii';
         
         lungRoi = getroiinfo(metadatas);
         
@@ -28,11 +28,16 @@ function convert(hObject, eventdata)
         
         mkdir(resultsFolder)
         
-        %save images
-        exportNRRD(imgFileName, img, metadatas{1})
+        %Uncalibrate Lung if necessary (HU values)
+        if min(min(min(img))) < 0
+            img = uncalibrateLung(img, metadatas{1});
+        end
         
-        if any(sum(sum(lungRoi)))
-            exportNRRD(roiFileName, lungRoi, metadatas{1})
+        %save images       
+        exportNfti(imgFileName, uint16(img), metadatas{1})
+        
+        if any(sum(sum(lungRoi)))            
+            exportNfti(roiFileName, lungRoi, metadatas{1})
         end
         
     logTextArea(handles.textArea, ['DICOMS in ' resultsFolder ' gespeichert!']);    
@@ -40,6 +45,20 @@ function convert(hObject, eventdata)
     else
         logTextArea(handles.textArea, 'DICOMS nicht gefunden');
     end
+end
+
+function img = uncalibrateLung(img, metadata)
+    
+        img = (img - metadata.RescaleIntercept) / metadata.RescaleSlope;
+    
+end
+
+function exportNfti(fileName, matrix, metadata)
+    matrix = imrotate(matrix, -90);
+    voxelSize = [metadata.PixelSpacing; metadata.SliceThickness];
+    origin = metadata.ImagePositionPatient;
+    nii = make_nii(matrix, voxelSize, origin);
+    save_nii(nii, fileName);
 end
 
 function exportNRRD(fileName, matrix, metadata)
@@ -162,8 +181,8 @@ function [resultsFolder, imgFileName, roiFileName] =...
         resultsFolder = [folderPath filesep 'ConversionOutput'];
     end
    
-    imgFileName = [resultsFolder filesep 'dicom' ext];
-    roiFileName = [resultsFolder filesep 'roi' ext];
+    imgFileName = [resultsFolder filesep 'dicom' ext '.gz'];
+    roiFileName = [resultsFolder filesep 'roi' ext '.gz'];
     
 end
 
