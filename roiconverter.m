@@ -28,7 +28,7 @@ function convert(hObject, eventdata)
         
         mkdir(resultsFolder)
         
-        %Uncalibrate Lung if necessary (HU values)
+        %Uncalibrate Lung if necessary (negative HU values)
         if min(min(min(img))) < 0
             img = uncalibrateLung(img, metadatas{1});
         end
@@ -37,7 +37,7 @@ function convert(hObject, eventdata)
         exportNfti(imgFileName, uint16(img), metadatas{1})
         
         if any(sum(sum(lungRoi)))            
-            exportNfti(roiFileName, lungRoi, metadatas{1})
+            exportNfti(roiFileName, uint16(lungRoi), metadatas{1})
         end
         
     logTextArea(handles.textArea, ['DICOMS in ' resultsFolder ' gespeichert!']);    
